@@ -3,7 +3,7 @@
 
 ### Hardware
 - WaveShare ESP32-P4-WIFI6-DEV-KIT board (https://www.waveshare.com/esp32-p4-wifi6-dev-kit.htm?sku=32054)
-- Hat from JLCPCB
+- Hat from JLCPCB (see in EasyEDA_Pro (https://easyeda.com/) for eprj file)
 
 ### Bugs
 When a display is connected to the vga, use of first usb-C port is impossible
