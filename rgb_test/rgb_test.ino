@@ -217,9 +217,9 @@ bool videoInitWaveP4(void) {
     };
     err = esp_ldo_acquire_channel(&ldo_vga_phy_config, &ldo_vga_phy);
     if (err == 0) {
-      printf("LDO 4 VGA Powered on");
+      printf("LDO 4 VGA Powered on at %d mV\n", ldo_vga_phy_config.voltage_mv);
     } else {
-      printf("LDO 4 VGA Powering failed");
+      printf("LDO 4 VGA Powering failed for %d mV\n", ldo_vga_phy_config.voltage_mv);
     }
 
   
@@ -325,8 +325,7 @@ bool videoInitWaveP4(void) {
     clk_ll_apll_set_config(o_div, sdm0, sdm1, sdm2);
     clk_ll_apll_get_config(&o_div, &sdm0, &sdm1, &sdm2);
     printf("Got APLL config div: %d sdm0: %d sdm1: %d sdm2: %d\n", o_div, sdm0, sdm1, sdm2);
-
-
+  
     printf("APLL enabled\n");
 
     err = esp_clk_tree_src_get_freq_hz(SOC_MOD_CLK_APLL, ESP_CLK_TREE_SRC_FREQ_PRECISION_EXACT, &freq);
