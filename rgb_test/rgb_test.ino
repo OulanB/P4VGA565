@@ -203,6 +203,26 @@ void *p4_frame_buffer = NULL;
 
 bool videoInitWaveP4(void) {
     esp_err_t err;
+
+    // RED5, 4 and 3 need LDO4 powered at 3.3V
+    // be carefull, this LDO is also used by SDMMC at 3.3V or 1.8V -> can alter RED colors ...
+    printf("Set LDO 4\n");
+    esp_ldo_channel_handle_t ldo_vga_phy = NULL;
+    esp_ldo_channel_config_t ldo_vga_phy_config = {
+        .chan_id = 4,
+        .voltage_mv = 3300,
+        .flags = {
+          .adjustable = 0,
+        },
+    };
+    err = esp_ldo_acquire_channel(&ldo_vga_phy_config, &ldo_vga_phy);
+    if (err == 0) {
+      printf("LDO 4 VGA Powered on");
+    } else {
+      printf("LDO 4 VGA Powering failed");
+    }
+
+  
     printf("Install RGB LCD panel driver\n");
     esp_lcd_panel_handle_t panel_handle = NULL;
     esp_lcd_rgb_panel_config_t panel_config = {
@@ -240,7 +260,7 @@ bool videoInitWaveP4(void) {
         .disp_gpio_num = -1,
         .data_gpio_nums = {
 #ifdef COL16
-            // high byte
+            // high byte -> mapping for Quickdraw 15 bits depth framebuffer (see basilisk II emulator)
             PIN_NUM_DATA6,  // GREEN 6 bit 0
             PIN_NUM_DATA5,  // GREEN 7 bit 1
             
@@ -249,7 +269,7 @@ bool videoInitWaveP4(void) {
             PIN_NUM_DATA2,  // RED 5   bit 4
             PIN_NUM_DATA1,  // RED 6   bit 5
             PIN_NUM_DATA0,  // RED 7   bit 6
-            PIN_NUM_DATA10, // GREEN2 DO NOT SET in framebuffer, needed to avoid banding in red ? not sure, perhaps hat is deficient
+            -1,             // not used
             // low byte
             PIN_NUM_DATA15, // BLUE 3  bit 0
             PIN_NUM_DATA14, // BLUE 4  bit 1
@@ -308,12 +328,6 @@ bool videoInitWaveP4(void) {
 
 
     printf("APLL enabled\n");
-//    printf("APLL Calibration ...");
-//    clk_ll_apll_set_calibration();
-//    while (!clk_ll_apll_calibration_is_done()) {
-//        delay(100);
-//    };
-//    printf(" done!!\n");
 
     err = esp_clk_tree_src_get_freq_hz(SOC_MOD_CLK_APLL, ESP_CLK_TREE_SRC_FREQ_PRECISION_EXACT, &freq);
     printf("APLL freq now %d Hz\n", freq);
@@ -344,13 +358,7 @@ bool videoInitWaveP4(void) {
 }
 
 uint16_t rgb888_to_rgb565(uint16_t r, uint16_t g, uint16_t b) {
-//  uint16_t col = (uint16_t)(r & 0xF8) << 7;
-//  col += (uint16_t)(g >> 3) << 5;
-//  col += (uint16_t)(b >> 3) << 0;
-//  return (col >> 8) | ((col & 0xFF) << 8);
-//    return (b >> 3) | ((g >> 3) << 5) | ((r >> 3) << 10);
     return (g >> 6) | ((r >> 3) << 2) | (((b >> 3) | (g >> 3) << 5) << 8);        
-//    return (g >> 6) | ((r & 0xF8) >> 1) | (((b >> 3) | (g & 0x38) << 2) << 8);        
 }
 
 void displayat(int x, int y, int v, uint16_t col0, uint16_t col1) {
