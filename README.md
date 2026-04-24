@@ -48,7 +48,9 @@ the bottom half use an offset of 8 pixels when computing the adress in the frame
 (see line 364 for the computing of the adress with this 'hack')
 and is displayed correctly.
 
-Certainly an hardware bug in the LCD RGB subsystem in the SOC.
+Certainly an hardware bug in the LCD RGB subsystem in the SOC ??
+
+Seems to be corrected in ESP-IDF v6.0 and v5.5.4
 
 ### Capabilities
 - 640x480 at 60 Hz (26.666 MHz pixel clock from 160 MHz default clock / 6)
